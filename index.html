@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>즐겨찾기</title>
     <style>
         body {
@@ -12,11 +13,13 @@
             align-items: center;
             height: 100vh;
             background-image: url('https://github.com/bottlie/testWeb/blob/main/1-min-min.png?raw=true');
-            background-size: cover; 
-            background-position: center; 
-            background-repeat: no-repeat; 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             background-size: contain;
             background-color: #76161b;
+            overflow: hidden; /* 눈송이가 바깥으로 넘치지 않도록 설정 */
+            position: relative;
         }
 
         .container {
@@ -25,6 +28,7 @@
             gap: 20px;
             width: 80%;
             max-width: 900px;
+            z-index: 1; /* 눈송이 아래로 위치 설정 */
         }
 
         .box {
@@ -47,6 +51,27 @@
         .box:active {
             transform: scale(0.95); 
         }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 12px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.5;
+            }
+        }
     </style>
 </head>
 <body>
@@ -59,18 +84,44 @@
         <a href="https://www.ut.ac.kr/kor/sub05_08_01_04_06.do" class="box" target="_blank">증명서발급</a>
     </div>
     <script>
-        const boxes = document.querySelectorAll('.box');
+        // 눈송이 생성 함수
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.textContent = '❄';
 
+            const size = Math.random() * 10 + 10; // 눈송이 크기
+            const duration = Math.random() * 5 + 3; // 낙하 시간
+            const position = Math.random() * window.innerWidth; // 가로 위치
+
+            snowflake.style.left = `${position}px`;
+            snowflake.style.fontSize = `${size}px`;
+            snowflake.style.animationDuration = `${duration}s`;
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3; // 투명도
+
+            document.body.appendChild(snowflake);
+
+            // 애니메이션 종료 후 눈송이 제거
+            setTimeout(() => {
+                snowflake.remove();
+            }, duration * 1000);
+        }
+
+        // 일정 간격으로 눈송이 생성
+        setInterval(createSnowflake, 100);
+
+        // 클릭 애니메이션 추가
+        const boxes = document.querySelectorAll('.box');
         boxes.forEach(box => {
             box.addEventListener('click', () => {
                 box.style.animation = 'flash 0.5s';
-
                 box.addEventListener('animationend', () => {
                     box.style.animation = '';
                 });
             });
         });
 
+        // 클릭 애니메이션 정의
         const style = document.createElement('style');
         style.innerHTML = `
             @keyframes flash {
