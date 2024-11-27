@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>즐겨찾기</title>
     <style>
-        /* 배경 및 눈 효과 */
+      
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -15,7 +15,7 @@
             flex-direction: column;
             height: 100vh;
             background-image: url('https://github.com/bottlie/testWeb/blob/main/1-min.png?raw=true');
-            background-size: cover; 
+            background-size: contain; 
             background-position: center; 
             background-repeat: no-repeat; 
             background-color: #76161b;
@@ -23,7 +23,7 @@
             position: relative;
         }
 
-        /* 눈송이 스타일 */
+      
         .snowflake {
             position: absolute;
             top: -10px;
@@ -45,23 +45,26 @@
             }
         }
 
-        /* 컨테이너 및 즐겨찾기 박스 스타일 */
+        
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             width: 80%;
             max-width: 900px;
-            z-index: 1; /* 눈송이보다 위에 표시되도록 설정 */
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
         }
 
         .box {
             background-color: #B22222; 
             color: white;
             text-align: center;
-            padding: 30px;
+            padding: 20px;
             border-radius: 5px;
-            font-size: 17px;
+            font-size: 16px;
             cursor: pointer;
             transition: transform 0.3s, background-color 0.3s;
             text-decoration: none;
@@ -78,7 +81,6 @@
     </style>
 </head>
 <body>
-    <!-- 즐겨찾기 박스 -->
     <div class="container">
         <a href="https://tis.ut.ac.kr/" class="box" target="_blank">통합정보시스템</a>
         <a href="https://ecampus.ut.ac.kr/" class="box" target="_blank">이러닝</a>
@@ -89,54 +91,30 @@
     </div>
 
     <script>
-        // 즐겨찾기 박스 클릭 애니메이션
-        const boxes = document.querySelectorAll('.box');
-        boxes.forEach(box => {
-            box.addEventListener('click', () => {
-                box.style.animation = 'flash 0.5s';
-                box.addEventListener('animationend', () => {
-                    box.style.animation = '';
-                });
-            });
-        });
-
-        // 눈송이 생성 함수
+        
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
-            snowflake.textContent = '❄'; // 눈송이 모양
+            snowflake.textContent = '❄'; 
 
-            // 랜덤 스타일 지정
-            const size = Math.random() * 10 + 10; // 눈송이 크기
-            const duration = Math.random() * 5 + 3; // 낙하 시간
-            const position = Math.random() * window.innerWidth; // 가로 위치
+            
+            const size = Math.random() * 10 + 10; 
+            const duration = Math.random() * 5 + 3; 
+            const position = Math.random() * window.innerWidth; 
 
             snowflake.style.left = `${position}px`;
             snowflake.style.fontSize = `${size}px`;
             snowflake.style.animationDuration = `${duration}s`;
             snowflake.style.opacity = Math.random() * 0.7 + 0.3;
 
-            // 눈송이를 body에 추가
             document.body.appendChild(snowflake);
 
-            // 애니메이션 종료 후 눈송이 제거
             setTimeout(() => {
                 snowflake.remove();
             }, duration * 1000);
         }
 
-        // 일정 간격으로 눈송이 생성
-        setInterval(createSnowflake, 100); // 100ms마다 눈송이 생성
-
-        // 클릭 애니메이션 스타일 추가
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes flash {
-                0% { box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8); }
-                100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-            }
-        `;
-        document.head.appendChild(style);
+        setInterval(createSnowflake, 100); 
     </script>
 </body>
 </html>
