@@ -2,32 +2,57 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>즐겨찾기</title>
     <style>
+        /* 배경 및 눈 효과 */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: flex-start;
+            flex-direction: column;
             height: 100vh;
-            background-image: url('https://github.com/bottlie/testWeb/blob/main/1-min-min.png?raw=true');
+            background-image: url('https://github.com/bottlie/testWeb/blob/main/1-min.png?raw=true');
             background-size: cover; 
             background-position: center; 
             background-repeat: no-repeat; 
             background-color: #76161b;
-            color: white;
-            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+            position: relative;
         }
 
+        /* 눈송이 스타일 */
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 12px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.5;
+            }
+        }
+
+        /* 컨테이너 및 즐겨찾기 박스 스타일 */
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             width: 80%;
             max-width: 900px;
-            margin-top: 20px;
+            z-index: 1; /* 눈송이보다 위에 표시되도록 설정 */
         }
 
         .box {
@@ -50,61 +75,10 @@
         .box:active {
             transform: scale(0.95); 
         }
-
-        #clock, #dark-mode-toggle, #calendar, #rock-paper-scissors {
-            margin: 20px;
-            text-align: center;
-        }
-
-        #dark-mode-toggle {
-            cursor: pointer;
-            padding: 10px 20px;
-            background-color: #B22222;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            transition: background-color 0.3s;
-        }
-
-        #dark-mode-toggle:hover {
-            background-color: #7A0000;
-        }
-
-        #calendar input {
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-        }
-
-        #rock-paper-scissors button {
-            margin: 5px;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: #B22222;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        #rock-paper-scissors button:hover {
-            background-color: #7A0000;
-        }
     </style>
 </head>
 <body>
-    <div id="clock"></div>
-    <button id="dark-mode-toggle">다크 모드 전환</button>
-    <div id="calendar">
-        <input type="date">
-    </div>
-    <div id="rock-paper-scissors">
-        <p>가위바위보 게임</p>
-        <button data-choice="rock">가위</button>
-        <button data-choice="paper">바위</button>
-        <button data-choice="scissors">보</button>
-        <p id="result"></p>
-    </div>
+    <!-- 즐겨찾기 박스 -->
     <div class="container">
         <a href="https://tis.ut.ac.kr/" class="box" target="_blank">통합정보시스템</a>
         <a href="https://ecampus.ut.ac.kr/" class="box" target="_blank">이러닝</a>
@@ -113,57 +87,56 @@
         <a href="https://www.ut.ac.kr/dorm.do" class="box" target="_blank">생활관</a>
         <a href="https://www.ut.ac.kr/kor/sub05_08_01_04_06.do" class="box" target="_blank">증명서발급</a>
     </div>
+
     <script>
-        // Clock
-        function updateClock() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('clock').innerText = timeString;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // Dark mode toggle
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            if (document.body.classList.contains('dark-mode')) {
-                document.body.style.backgroundColor = '#121212';
-                document.body.style.color = '#f0f0f0';
-                darkModeToggle.innerText = '라이트 모드 전환';
-            } else {
-                document.body.style.backgroundColor = '#76161b';
-                document.body.style.color = 'white';
-                darkModeToggle.innerText = '다크 모드 전환';
-            }
-        });
-
-        // Rock-paper-scissors
-        const buttons = document.querySelectorAll('#rock-paper-scissors button');
-        const resultDisplay = document.getElementById('result');
-
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                const userChoice = button.dataset.choice;
-                const choices = ['rock', 'paper', 'scissors'];
-                const computerChoice = choices[Math.floor(Math.random() * choices.length)];
-                let result = '';
-
-                if (userChoice === computerChoice) {
-                    result = '무승부!';
-                } else if (
-                    (userChoice === 'rock' && computerChoice === 'scissors') ||
-                    (userChoice === 'paper' && computerChoice === 'rock') ||
-                    (userChoice === 'scissors' && computerChoice === 'paper')
-                ) {
-                    result = '승리!';
-                } else {
-                    result = '패배!';
-                }
-
-                resultDisplay.innerText = `당신: ${userChoice}, 컴퓨터: ${computerChoice} - ${result}`;
+        // 즐겨찾기 박스 클릭 애니메이션
+        const boxes = document.querySelectorAll('.box');
+        boxes.forEach(box => {
+            box.addEventListener('click', () => {
+                box.style.animation = 'flash 0.5s';
+                box.addEventListener('animationend', () => {
+                    box.style.animation = '';
+                });
             });
         });
+
+        // 눈송이 생성 함수
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.textContent = '❄'; // 눈송이 모양
+
+            // 랜덤 스타일 지정
+            const size = Math.random() * 10 + 10; // 눈송이 크기
+            const duration = Math.random() * 5 + 3; // 낙하 시간
+            const position = Math.random() * window.innerWidth; // 가로 위치
+
+            snowflake.style.left = `${position}px`;
+            snowflake.style.fontSize = `${size}px`;
+            snowflake.style.animationDuration = `${duration}s`;
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+
+            // 눈송이를 body에 추가
+            document.body.appendChild(snowflake);
+
+            // 애니메이션 종료 후 눈송이 제거
+            setTimeout(() => {
+                snowflake.remove();
+            }, duration * 1000);
+        }
+
+        // 일정 간격으로 눈송이 생성
+        setInterval(createSnowflake, 100); // 100ms마다 눈송이 생성
+
+        // 클릭 애니메이션 스타일 추가
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes flash {
+                0% { box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8); }
+                100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
