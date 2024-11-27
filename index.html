@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>즐겨찾기</title>
     <style>
         body {
@@ -12,11 +13,12 @@
             align-items: center;
             height: 100vh;
             background-image: url('https://github.com/bottlie/testWeb/blob/main/1-min-min.png?raw=true');
-            background-size: cover; 
-            background-position: center; 
-            background-repeat: no-repeat; 
-            background-size: contain;
-            background-color: #76161b;
+            background-size: cover; /* 화면 전체를 채우도록 설정 */
+            background-position: center center; /* 이미지 중앙 정렬 */
+            background-repeat: no-repeat;
+            background-color: #76161b; /* 이미지가 부족한 부분 채움 */
+            overflow: hidden;
+            position: relative;
         }
 
         .container {
@@ -25,6 +27,7 @@
             gap: 20px;
             width: 80%;
             max-width: 900px;
+            z-index: 1;
         }
 
         .box {
@@ -47,6 +50,27 @@
         .box:active {
             transform: scale(0.95); 
         }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 12px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.5;
+            }
+        }
     </style>
 </head>
 <body>
@@ -59,26 +83,24 @@
         <a href="https://www.ut.ac.kr/kor/sub05_08_01_04_06.do" class="box" target="_blank">증명서발급</a>
     </div>
     <script>
-        const boxes = document.querySelectorAll('.box');
+        // 눈송이 생성 함수
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.textContent = '❄';
 
-        boxes.forEach(box => {
-            box.addEventListener('click', () => {
-                box.style.animation = 'flash 0.5s';
+            const size = Math.random() * 10 + 10; // 눈송이 크기
+            const duration = Math.random() * 5 + 3; // 낙하 시간
+            const position = Math.random() * window.innerWidth; // 가로 위치
 
-                box.addEventListener('animationend', () => {
-                    box.style.animation = '';
-                });
-            });
-        });
+            snowflake.style.left = `${position}px`;
+            snowflake.style.fontSize = `${size}px`;
+            snowflake.style.animationDuration = `${duration}s`;
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3; // 투명도
 
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes flash {
-                0% { box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8); }
-                100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
-</body>
-</html>
+            document.body.appendChild(snowflake);
+
+            // 애니메이션 종료 후 눈송이 제거
+            setTimeout(() => {
+                snowflake.remove();
+            }, duration * 1000);
