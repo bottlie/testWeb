@@ -2,83 +2,225 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>즐겨찾기</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>즐겨찾기 - 가위바위보</title>
     <style>
+        :root {
+            --bg-color: #76161b;
+            --text-color: white;
+            --box-bg-color: #B22222;
+            --box-hover-bg-color: #7A0000;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1e1e1e;
+            --text-color: #f0f0f0;
+            --box-bg-color: #333;
+            --box-hover-bg-color: #444;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-image: url('https://github.com/bottlie/testWeb/blob/main/2.png?raw=true');
-            background-size: cover; 
-            background-position: center; 
-            background-repeat: no-repeat; 
-            background-size: contain;
-            background-color: #76161b;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            position: relative;
+            transition: background-color 0.5s, color 0.5s;
         }
 
-        .container {
+        .time {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .message {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game-container, .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             width: 80%;
             max-width: 900px;
+            justify-content: center;
+            text-align: center;
         }
 
-        .box {
-            background-color: #B22222; 
-            color: white;
+        .box, .choice {
+            background-color: var(--box-bg-color);
+            color: var(--text-color);
             text-align: center;
             padding: 30px;
             border-radius: 5px;
             font-size: 17px;
             cursor: pointer;
-            transition: transform 0.3s, background-color 0.3s;
+            transition: transform 0.3s, background-color 0.3s, color 0.3s;
             text-decoration: none;
         }
 
-        .box:hover {
-            background-color: #7A0000; 
-            transform: scale(1.1); 
+        .box:hover, .choice:hover {
+            background-color: var(--box-hover-bg-color);
+            transform: scale(1.1);
         }
 
-        .box:active {
-            transform: scale(0.95); 
+        .toggle-btn {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            background-color: var(--box-bg-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--box-hover-bg-color);
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: var(--text-color);
+            font-size: 12px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.5;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="time" id="time"></div>
+    <button class="toggle-btn">☀️</button>
+    <p class="message">가위바위보를 시작하세요!</p>
+    <div class="game-container">
+        <div class="choice" data-choice="rock">✊ 가위</div>
+        <div class="choice" data-choice="paper">✋ 바위</div>
+        <div class="choice" data-choice="scissors">✌ 보</div>
+    </div>
+
+    <div class="container" style="display: none;">
         <a href="https://tis.ut.ac.kr/" class="box" target="_blank">통합정보시스템</a>
         <a href="https://ecampus.ut.ac.kr/" class="box" target="_blank">이러닝</a>
         <a href="https://portal.ut.ac.kr/" class="box" target="_blank">포털시스템</a>
         <a href="https://chains.ut.ac.kr/index.ax" class="box" target="_blank">도서관</a>
         <a href="https://www.ut.ac.kr/dorm.do" class="box" target="_blank">생활관</a>
         <a href="https://www.ut.ac.kr/kor/sub05_08_01_04_06.do" class="box" target="_blank">증명서발급</a>
+        <a href="https://lets.ut.ac.kr/lms/front/nonSubject/doListProgram.dunet?mnid=201912183821" class="box" target="_blank">UTRO+</a>
+        <a href="https://www.ut.ac.kr/prog/mealManage/MT01/kor/sub06_02_02_01/list.do" class="box" target="_blank">학교식단</a>
+        <a href="https://www.ut.ac.kr/prog/schedule/kor/sub05_01/1/scheduleList.do" class="box" target="_blank">학사일정</a>
     </div>
+
     <script>
-        const boxes = document.querySelectorAll('.box');
+        const timeElement = document.getElementById("time");
 
-        boxes.forEach(box => {
-            box.addEventListener('click', () => {
-                box.style.animation = 'flash 0.5s';
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, "0");
+            const minutes = now.getMinutes().toString().padStart(2, "0");
+            const seconds = now.getSeconds().toString().padStart(2, "0");
+            timeElement.textContent = `현재 시간: ${hours}:${minutes}:${seconds}`;
+        }
 
-                box.addEventListener('animationend', () => {
-                    box.style.animation = '';
-                });
+        setInterval(updateTime, 1000);
+
+        const toggleBtn = document.querySelector('.toggle-btn');
+        const rootElement = document.documentElement;
+        const gameContainer = document.querySelector('.game-container');
+        const linksContainer = document.querySelector('.container');
+        const message = document.querySelector('.message');
+        const choices = document.querySelectorAll('.choice');
+
+        const outcomes = {
+            rock: "scissors",
+            scissors: "paper",
+            paper: "rock"
+        };
+
+        toggleBtn.addEventListener('click', () => {
+            const currentTheme = rootElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                rootElement.removeAttribute('data-theme');
+                toggleBtn.textContent = '☀️';
+            } else {
+                rootElement.setAttribute('data-theme', 'dark');
+                toggleBtn.textContent = '🌙';
+            }
+        });
+
+        function playGame(playerChoice) {
+            const computerChoice = Object.keys(outcomes)[Math.floor(Math.random() * 3)];
+            if (playerChoice === computerChoice) {
+                message.textContent = "비겼습니다! 다시 선택하세요.";
+            } else if (outcomes[playerChoice] === computerChoice) {
+                message.textContent = "이겼습니다! 즐겨찾기로 이동합니다.";
+                setTimeout(() => {
+                    gameContainer.style.display = "none";
+                    message.style.display = "none";
+                    linksContainer.style.display = "grid";
+                }, 1000);
+            } else {
+                message.textContent = "졌습니다! 창을 닫습니다.";
+                setTimeout(() => {
+                    window.close();
+                }, 1000);
+            }
+        }
+
+        choices.forEach(choice => {
+            choice.addEventListener('click', () => {
+                playGame(choice.dataset.choice);
             });
         });
 
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes flash {
-                0% { box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8); }
-                100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-            }
-        `;
-        document.head.appendChild(style);
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.textContent = '❄';
+
+            const size = Math.random() * 10 + 10;
+            const duration = Math.random() * 5 + 3;
+            const position = Math.random() * window.innerWidth;
+
+            snowflake.style.left = `${position}px`;
+            snowflake.style.fontSize = `${size}px`;
+            snowflake.style.animationDuration = `${duration}s`;
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+
+            document.body.appendChild(snowflake);
+
+            setTimeout(() => {
+                snowflake.remove();
+            }, duration * 1000);
+        }
+
+        setInterval(createSnowflake, 100);
     </script>
 </body>
 </html>
