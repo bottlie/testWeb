@@ -38,12 +38,72 @@
             background-repeat: no-repeat; 
             background-size: contain;
         }
-        .time {
+        .digital-clock {
             position: absolute;
             top: 10px;
             left: 20px;
-            font-size: 18px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
             font-weight: bold;
+            color: black;
+            font-family: 'Courier New', Courier, monospace;
+            z-index: 1000;
+        }
+
+        .calendar {
+            display: none;
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            width: 300px;
+            background: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .calendar-header button {
+            background-color: var(--box-bg-color);
+            color: var(--text-color);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .calendar-header button:hover {
+            background-color: var(--box-hover-bg-color);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .calendar-grid div {
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .calendar-grid .current-day {
+            background-color: #76161b !important;
+            color: white;
+        }
+
+        .calendar-grid .day {
+            background-color: black;
         }
 
         .message {
@@ -79,10 +139,16 @@
             transform: scale(1.1);
         }
 
-        .toggle-btn {
+        .controls {
             position: absolute;
-            top: 50px;
+            top: 20px;
             right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .toggle-btn, .calendar-btn {
             background-color: var(--box-bg-color);
             color: var(--text-color);
             border: none;
@@ -93,7 +159,7 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        .toggle-btn:hover {
+        .toggle-btn:hove, .calendar-btn:hove {
             background-color: var(--box-hover-bg-color);
         }
 
@@ -174,16 +240,22 @@
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
+       
     </style>
 </head>
 <body>
-    <div class="time" id="time"></div>
-    <button class="toggle-btn">☀️</button>
+    <div class="digital-clock" id="current-time">00:00:00</div>
+
+    <div class="controls">
+        <button class="toggle-btn">☀️</button>
+        <button class="calendar-btn">📅</button>
+    </div>
+    
     <p class="message">가위바위보를 시작하세요!</p>
     <div class="game-container">
-        <div class="choice" data-choice="rock">✊ 가위</div>
-        <div class="choice" data-choice="paper">✋ 바위</div>
-        <div class="choice" data-choice="scissors">✌ 보</div>
+        <div class="choice" data-choice="rock">✊ 바위</div>
+        <div class="choice" data-choice="paper">✋ 보</div>
+        <div class="choice" data-choice="scissors">✌ 가위</div>
     </div>
 
     <div class="container" style="display: none;">
@@ -204,6 +276,17 @@
         <button class="cancel-btn" id="cancelBtn">취소</button>
     </div>
 
+    <div class="calendar">
+        <div class="calendar-header">
+            <button id="prev-month">이전</button>
+            <h2 id="month-year">2024년 11월</h2>
+            <button id="next-month">다음</button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid">
+            <!-- 여기에 날짜가 채워집니다 -->
+        </div>
+    </div>
+
     <script>
         const timeElement = document.getElementById("time");
         const addButton = document.querySelector(".add-button");
@@ -217,13 +300,78 @@
 
         function updateTime() {
             const now = new Date();
-            const hours = now.getHours().toString().padStart(2, "0");
-            const minutes = now.getMinutes().toString().padStart(2, "0");
-            const seconds = now.getSeconds().toString().padStart(2, "0");
-            timeElement.textContent = `현재 시간: ${hours}:${minutes}:${seconds}`;
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateTime, 1000);
+
+        const monthYear = document.getElementById('month-year');
+        const calendarGrid = document.getElementById('calendar-grid');
+        let currentMonth = new Date();
+
+        function renderCalendar(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            monthYear.textContent = `${year}년 ${month + 1}월`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            calendarGrid.innerHTML = '';
+
+            // 빈 칸 채우기
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                calendarGrid.appendChild(emptyCell);
+            }
+
+            // 날짜 채우기
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.textContent = day;
+                dayCell.classList.add('day');
+
+                // 오늘 날짜 강조
+                if (
+                    year === today.getFullYear() &&
+                    month === today.getMonth() &&
+                    day === today.getDate()
+                ) {
+                    dayCell.classList.add('current-day');
+                }
+
+                calendarGrid.appendChild(dayCell);
+            }
         }
 
-        setInterval(updateTime, 1000);
+        // 이전, 다음 버튼 클릭 이벤트
+        document.getElementById('prev-month').addEventListener('click', () => {
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            renderCalendar(currentMonth);
+        });
+
+        document.getElementById('next-month').addEventListener('click', () => {
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            renderCalendar(currentMonth);
+        });
+
+        // 캘린더 초기 렌더링
+        renderCalendar(currentMonth);
+
+        const calendar = document.querySelector('.calendar'); // 캘린더 요소 선택
+const calendarBtn = document.querySelector('.calendar-btn'); // 캘린더 버튼 선택
+
+calendarBtn.addEventListener('click', () => {
+    // 캘린더 보이기/숨기기
+    if (calendar.style.display === 'none' || calendar.style.display === '') {
+        calendar.style.display = 'block';
+    } else {
+        calendar.style.display = 'none';
+    }
+});
 
         const toggleBtn = document.querySelector('.toggle-btn');
         const rootElement = document.documentElement;
@@ -302,6 +450,7 @@
                 alert("모든 필드를 입력해주세요!");
             }
         });
+        
 
         function createSnowflake() {
             const snowflake = document.createElement('div');
@@ -325,6 +474,8 @@
         }
 
         setInterval(createSnowflake, 100);
+
+        
     </script>
 </body>
 </html>
