@@ -477,5 +477,114 @@ calendarBtn.addEventListener('click', () => {
 
         
     </script>
+    <script>
+    // GitHub Gist 관련 정보 (개인 액세스 토큰과 Gist ID 필요)
+    const GITHUB_TOKEN = "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"; // 여기에 GitHub Personal Access Token 입력
+    const GIST_ID = "bottlie";      // 여기에 Gist ID 입력
+
+    // Gist에서 즐겨찾기 데이터를 가져오는 함수
+    async function loadFavoritesFromGist() {
+        if (!GITHUB_TOKEN || !GIST_ID) {
+            console.error("GitHub Token 또는 Gist ID가 설정되지 않았습니다.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                headers: {
+                    Authorization: `token ${GITHUB_TOKEN}`
+                }
+            });
+
+            if (response.ok) {
+                const gist = await response.json();
+                const favorites = JSON.parse(gist.files["favorites.json"].content);
+                renderFavorites(favorites);
+            } else {
+                console.error("즐겨찾기를 불러오지 못했습니다.", response.status);
+            }
+        } catch (error) {
+            console.error("오류 발생:", error);
+        }
+    }
+
+    // Gist에 즐겨찾기 데이터를 저장하는 함수
+    async function saveFavoritesToGist(favorites) {
+        if (!GITHUB_TOKEN || !GIST_ID) {
+            console.error("GitHub Token 또는 Gist ID가 설정되지 않았습니다.");
+            return;
+        }
+
+        const payload = {
+            files: {
+                "favorites.json": {
+                    content: JSON.stringify(favorites, null, 2)
+                }
+            }
+        };
+
+        try {
+            const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `token ${GITHUB_TOKEN}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                console.log("즐겨찾기가 저장되었습니다.");
+            } else {
+                console.error("즐겨찾기를 저장하지 못했습니다.", response.status);
+            }
+        } catch (error) {
+            console.error("오류 발생:", error);
+        }
+    }
+
+    // 즐겨찾기를 화면에 렌더링하는 함수
+    function renderFavorites(favorites) {
+        container.innerHTML = ""; // 기존 즐겨찾기 초기화
+        favorites.forEach(favorite => {
+            const newBox = document.createElement("a");
+            newBox.className = "box";
+            newBox.textContent = favorite.name;
+            newBox.href = favorite.url;
+            newBox.target = "_blank";
+            container.insertBefore(newBox, addButton);
+        });
+    }
+
+    // "추가" 버튼 클릭 시 새로운 즐겨찾기를 추가하고 저장
+    addBtn.addEventListener("click", async () => {
+        const name = nameInput.value.trim();
+        const url = urlInput.value.trim();
+        if (name && url) {
+            const newFavorite = { name, url };
+
+            // 현재 즐겨찾기 불러오기
+            const currentFavorites = Array.from(container.querySelectorAll(".box")).map(box => ({
+                name: box.textContent,
+                url: box.href
+            }));
+
+            currentFavorites.push(newFavorite);
+            renderFavorites(currentFavorites); // 화면에 반영
+            await saveFavoritesToGist(currentFavorites); // Gist에 저장
+
+            nameInput.value = "";
+            urlInput.value = "";
+            modal.style.display = "none";
+            overlay.style.display = "none";
+        } else {
+            alert("모든 필드를 입력해주세요!");
+        }
+    });
+
+    // 페이지 로드 시 Gist에서 즐겨찾기 불러오기
+    document.addEventListener("DOMContentLoaded", loadFavoritesFromGist);
+</script>
+
 </body>
 </html>
