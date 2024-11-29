@@ -240,6 +240,68 @@
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
+        @media (max-width: 768px) {
+    .game-container, .container {
+        grid-template-columns: 1fr; /* 단일 열 레이아웃 */
+        gap: 10px;
+        width: 90%; /* 화면 폭에 맞게 조정 */
+    }
+
+    .box, .choice, .add-button {
+        padding: 20px;
+        font-size: 16px;
+    }
+
+    .calendar {
+        width: 90%; /* 화면에 맞게 조정 */
+    }
+
+    .calendar-header {
+        flex-direction: column; /* 세로로 정렬 */
+        align-items: flex-start;
+    }
+
+    .calendar-header button {
+        margin-bottom: 10px; /* 버튼 사이 간격 추가 */
+    }
+
+    .digital-clock {
+        font-size: 12px; /* 글자 크기 조정 */
+        padding: 5px 8px;
+    }
+
+    .controls {
+        flex-direction: column; /* 세로 정렬 */
+        top: 10px;
+        right: 10px;
+    }
+
+    .controls button {
+        padding: 5px 10px;
+        font-size: 12px;
+        margin-bottom: 5px; /* 버튼 사이 간격 */
+    }
+
+    .modal {
+        width: 90%; /* 화면에 맞게 크기 조정 */
+    }
+
+    .modal input {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .modal button {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    .message {
+        font-size: 16px;
+        margin: 10px;
+    }
+}
+
        
     </style>
 </head>
