@@ -313,13 +313,6 @@
         <button class="calendar-btn">📅</button>
     </div>
     
-    <p class="message">가위바위보를 시작하세요!</p>
-    <div class="game-container">
-        <div class="choice" data-choice="rock">✊ 바위</div>
-        <div class="choice" data-choice="paper">✋ 보</div>
-        <div class="choice" data-choice="scissors">✌ 가위</div>
-    </div>
-
     <div class="container" style="display: none;">
         <a href="https://tis.ut.ac.kr/" class="box" target="_blank">통합정보시스템</a>
         <a href="https://ecampus.ut.ac.kr/" class="box" target="_blank">이러닝</a>
@@ -455,31 +448,6 @@
                 rootElement.setAttribute('data-theme', 'dark');
                 toggleBtn.textContent = '🌙';
             }
-        });
-
-        function playGame(playerChoice) {
-            const computerChoice = Object.keys(outcomes)[Math.floor(Math.random() * 3)];
-            if (playerChoice === computerChoice) {
-                message.textContent = "비겼습니다! 다시 선택하세요.";
-            } else if (outcomes[playerChoice] === computerChoice) {
-                message.textContent = "이겼습니다! 즐겨찾기로 이동합니다.";
-                setTimeout(() => {
-                    gameContainer.style.display = "none";
-                    message.style.display = "none";
-                    linksContainer.style.display = "grid";
-                }, 1000);
-            } else {
-                message.textContent = "졌습니다! 창을 닫습니다.";
-                setTimeout(() => {
-                    window.close();
-                }, 1000);
-            }
-        }
-
-        choices.forEach(choice => {
-            choice.addEventListener('click', () => {
-                playGame(choice.dataset.choice);
-            });
         });
 
         addButton.addEventListener("click", () => {
